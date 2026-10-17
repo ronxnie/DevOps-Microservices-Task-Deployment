@@ -79,9 +79,9 @@ Install the following and verify the versions:
 - **Docker Desktop** (Windows/Mac) or **Docker Engine** (Linux): `docker --version`
 - **Docker Compose** (included in Docker Desktop): `docker compose version`
 
-![Pre-Requisites Check](/Deployment_Process/screenshots/Step1_Pre_Requisites_Check/Pre_Requisites_Check.png)
-
 -- Pre-Requisites Check --
+
+![Pre-Requisites Check](/Deployment_Process/screenshots/Step1_Pre_Requisites_Check/Pre_Requisites_Check.png)
 
 ---
 
@@ -126,21 +126,21 @@ Open each service folder and note:
 ```bash
 cat user-service/package.json
 ```
-![Gateway-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/Gateway_Service_Package_JSON.png)
-
 -- Gateway-Service Package.json File --
 
-![Order-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/Order_Service_Package_JSON.png)
+![Gateway-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/Gateway_Service_Package_JSON.png)
 
 -- Order-Service Package.json File --
 
-![Product-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/Product_Service_Package_JSON.png)
+![Order-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/Order_Service_Package_JSON.png)
 
 -- Product-Service Package.json File --
 
-![User-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/User_Service_Package_JSON.png)
+![Product-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/Product_Service_Package_JSON.png)
 
 -- User-Service Package.json File --
+
+![User-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/User_Service_Package_JSON.png)
 
 ### Step 3: Add a `.dockerignore` to each service
 
@@ -152,13 +152,13 @@ npm-debug.log
 .git
 .env
 ```
-![dockerignore File Creation](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/DockerIgnore_File_Generated_For_Each_Microservice.png)
-
 -- dockerignore File Creation --
 
-![dockerignore File Created For Each Service](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/DockerIgnore_File_Folder_Structure.png)
+![dockerignore File Creation](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/DockerIgnore_File_Generated_For_Each_Microservice.png)
 
 -- dockerignore File Created For Each Service --
+
+![dockerignore File Created For Each Service](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/DockerIgnore_File_Folder_Structure.png)
 
 This stops your local `node_modules` from being copied into the image.
 
@@ -187,9 +187,12 @@ COPY . .
 # Document the port this service uses
 EXPOSE 3000
 
-# Start the service
-CMD ["npm", "start"]
+# Start the service (If the file preset starts with a different file name, then replace app.js with the file name present for the service)
+CMD ["node", "app.js"]
 ```
+-- User Service Docker File --
+
+![User Service Docker File](/Deployment_Process/screenshots/Step3_Docker_File_Creation/User_Service_Docker_File.png)
 
 **`product-service/Dockerfile`**
 
@@ -200,8 +203,26 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 EXPOSE 3001
-CMD ["npm", "start"]
+CMD ["node", "app.js"]
 ```
+-- Product Service Docker File --
+
+![Product Service Docker File](/Deployment_Process/screenshots/Step3_Docker_File_Creation/Product_Service_Docker_File.png)
+
+**`order-service/Dockerfile`**
+
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3002
+CMD ["node", "app.js"]
+```
+-- Order Service Docker File -- 
+
+![Order Service Docker File](/Deployment_Process/screenshots/Step3_Docker_File_Creation/Order_Service_Docker_File.png)
 
 **`gateway-service/Dockerfile`**
 
@@ -212,10 +233,13 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 EXPOSE 3003
-CMD ["npm", "start"]
+CMD ["node", "app.js"]
 ```
+-- Gateway Service Docker File --
 
-> If a service's `package.json` has no `start` script, use `CMD ["node", "index.js"]` instead (replace `index.js` with that service's real entry file).
+![Gateway Service Docker File](/Deployment_Process/screenshots/Step3_Docker_File_Creation/Gateway_Service_Docker_File.png)
+
+> If a service's `package.json` has `start` script, use `CMD ["npm", "start"]` instead.
 
 ### Step 5: Make the gateway talk to the other services
 
