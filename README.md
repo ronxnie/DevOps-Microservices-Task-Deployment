@@ -435,7 +435,7 @@ docker compose logs gateway-service
 |---|---|---|
 | `Cannot connect to the Docker daemon` | Docker isn't running | Start Docker Desktop (or `sudo systemctl start docker` on Linux) |
 | `port is already allocated` / `address already in use` | Another program uses 3000, 3001 or 3003 | Stop it, or change the left side of the mapping, e.g. `"4000:3000"` |
-| `npm start` fails / `Missing script: start` | No `start` script in `package.json` | Use `CMD ["node", "index.js"]` with the correct file name |
+| `npm start` fails / `Missing script: start` | No `start` script in `package.json` | Use `CMD ["node", "app.js"]` with the correct file name |
 | `Cannot find module ...` | Dependencies not installed or `node_modules` copied from host | Confirm `.dockerignore` lists `node_modules`, then `docker compose build --no-cache` |
 | Gateway gets `ECONNREFUSED 127.0.0.1:3000` | Gateway code still uses `localhost` | Use `http://user-service:3000` and `http://product-service:3001` |
 | Service opens but the browser can't connect | App listens only on `127.0.0.1` | Make it listen on all interfaces: `app.listen(PORT, '0.0.0.0')` |
