@@ -66,3 +66,20 @@ This document provides details on testing various services after running the `do
 2. Once the services are running, use the above endpoints to verify the functionality.
 
 Happy testing!
+
+---
+
+# Deployment Steps
+---
+
+## 1. Prerequisites Check
+
+Install the following and verify the versions:
+
+- **Git**: `git --version`
+- **Docker Desktop** (Windows/Mac) or **Docker Engine** (Linux): `docker --version`
+- **Docker Compose** (included in Docker Desktop): `docker compose version`
+
+![Pre-Requisites Check](/Deployment_Process/screenshots/Pre_Requisites_Check.png)
+
+---
