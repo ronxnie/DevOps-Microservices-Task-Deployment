@@ -80,6 +80,7 @@ Install the following and verify the versions:
 - **Docker Compose** (included in Docker Desktop): `docker compose version`
 
 ![Pre-Requisites Check](/Deployment_Process/screenshots/Step1_Pre_Requisites_Check/Pre_Requisites_Check.png)
+
 -- Pre-Requisites Check --
 
 ---
@@ -126,15 +127,19 @@ Open each service folder and note:
 cat user-service/package.json
 ```
 ![Gateway-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/Gateway_Service_Package_JSON.png)
+
 -- Gateway-Service Package.json File --
 
 ![Order-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/Order_Service_Package_JSON.png)
+
 -- Order-Service Package.json File --
 
 ![Product-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/Product_Service_Package_JSON.png)
+
 -- Product-Service Package.json File --
 
 ![User-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/User_Service_Package_JSON.png)
+
 -- User-Service Package.json File --
 
 ### Step 3: Add a `.dockerignore` to each service
@@ -148,9 +153,11 @@ npm-debug.log
 .env
 ```
 ![dockerignore File Creation](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/DockerIgnore_File_Generated_For_Each_Microservice.png)
+
 -- dockerignore File Creation --
 
 ![dockerignore File Created For Each Service](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/DockerIgnore_File_Folder_Structure.png)
+
 -- dockerignore File Created For Each Service --
 
 This stops your local `node_modules` from being copied into the image.
