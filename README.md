@@ -142,7 +142,7 @@ cat user-service/package.json
 
 ![User-Service Package.json File](/Deployment_Process/screenshots/Step2_Step-By-Step_Service_Map/User_Service_Package_JSON.png)
 
-### Step 3: Add a `.dockerignore` to each service
+### Step 2: Add a `.dockerignore` to each service
 
 Create `user-service/.dockerignore`, `product-service/.dockerignore` and `gateway-service/.dockerignore` with:
 
@@ -162,7 +162,7 @@ npm-debug.log
 
 This stops your local `node_modules` from being copied into the image.
 
-### Step 4: Create the Dockerfiles
+### Step 3: Create the Dockerfiles
 
 Create a `Dockerfile` inside each service folder (see below).
 
@@ -241,25 +241,7 @@ CMD ["node", "app.js"]
 
 > If a service's `package.json` has `start` script, use `CMD ["npm", "start"]` instead.
 
-### Step 5: Make the gateway talk to the other services
-
-Inside Docker, `localhost` means *the container itself*, not your computer. If the gateway code calls `http://localhost:3000`, it will fail in Docker. Change those URLs to the **service names**:
-
-| Instead of | Use |
-|---|---|
-| `http://localhost:3000` | `http://user-service:3000` |
-| `http://localhost:3001` | `http://product-service:3001` |
-
-The best approach is to read them from environment variables in the gateway code:
-
-```js
-const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://localhost:3000';
-const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://localhost:3001';
-```
-
-The compose file below sets these variables for you.
-
-### Step 6: Create `docker-compose.yml`
+### Step 4: Create `docker-compose.yml`
 
 In the project root (next to the three service folders):
 
