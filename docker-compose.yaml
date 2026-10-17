@@ -1,0 +1,44 @@
+services:
+  user-service:
+    build: ./Microservices/user-service
+    container_name: user-service
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+  
+  product-service:
+    build: ./Microservices/product-service
+    container_name: product-service
+    ports:
+      - "3001:3001"
+    networks:
+      - app-network
+  
+  order-service:
+    build: ./Microservices/order-service
+    container_name: order-service
+    ports:
+      - "3002:3002"
+    networks:
+      - app-network
+
+  gateway-service:
+    build: ./Microservices/gateway-service
+    container_name: gateway-service
+    ports:
+      - "3003:3003"
+    environment:
+      - USER_SERVICE_URL=http://user-service:3000
+      - PRODUCT_SERVICE_URL=http://product-service:3001
+      - ORDER_SERVICE_URL=http://order-service:3002
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

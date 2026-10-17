@@ -263,6 +263,14 @@ services:
     networks:
       - app-network
 
+  order-service:
+    build: ./order-service
+    container_name: product-service
+    ports:
+      - "3002:3002"
+    networks:
+      - app-network
+
   gateway-service:
     build: ./gateway-service
     container_name: gateway-service
@@ -271,15 +279,195 @@ services:
     environment:
       - USER_SERVICE_URL=http://user-service:3000
       - PRODUCT_SERVICE_URL=http://product-service:3001
+      - ORDER_SERVICE_URL=http://order-service:3002
     depends_on:
       - user-service
       - product-service
+      - order-service
     networks:
       - app-network
 
 networks:
   app-network:
     driver: bridge
+```
+-- docker-compose.yaml File Creation Complete --
+
+![docker-compose.yaml File Creation Completed](/Deployment_Process/screenshots/Step4_Docker-Compose_File_Creation/docker-compose_File_Creation_1.png)
+
+![docker-compose.yaml File Creation Completed](/Deployment_Process/screenshots/Step4_Docker-Compose_File_Creation/docker-compose_File_Creation_2.png)
+
+---
+
+## 4. Run the Application
+
+From the project root:
+
+```bash
+docker compose up --build
+```
+-- Docker Build Services Mapped To Ports --
+
+![Docker Build Completed and 4 Services Mapped to 4 Different Ports](/Deployment_Process/screenshots/Step5_Docker_Build/Docker-Build_Services_Mapped_Ports.png)
+
+(Older installs: `docker-compose up --build`.)
+
+Wait until you see log lines showing each service listening on its port. To run in the background instead:
+
+```bash
+docker compose up --build -d
+```
+-- Deploy on the Background -- 
+
+![Services Stopped For Deploying in the Background](/Deployment_Process/screenshots/Step5_Docker_Build/Services_Stopped_For_Deploying_In_Background.png)
+
+![Deploy the Services in the Background](/Deployment_Process/screenshots/Step5_Docker_Build/Docker_Services_Deployed_On_Background.png)
+
+Check that all containers are running:
+
+```bash
+docker compose ps
+```
+-- List of Deployed Services in Background --
+
+![List of Deployed Services in Background](/Deployment_Process/screenshots/Step5_Docker_Build/List_of_Deployed_Services.png)
+
+You should see `user-service`, `product-service`, `order-service` and `gateway-service` with status **Up**.
+
+To stop everything:
+
+```bash
+docker compose down
+```
+-- To Stop All Services -- 
+
+![Stopping All Deployed Services](/Deployment_Process/screenshots/Step5_Docker_Build/Stopping_All_Deployed_Services.png)
+---
+
+
+## 5. How to Test Each Service
+
+> The exact routes depend on the provided source code. Check each service's route definitions (for example `app.get('/...')`) and adjust the paths below. A browser works for GET requests; `curl` works in the terminal.
+
+### User Service: http://localhost:3000
+
+```bash
+curl http://localhost:3000
+curl http://localhost:3000/users
+```
+-- Local Host 3000 - User Service --
+
+![User Service Running Successfully](/Deployment_Process/screenshots/Step6_Deployment_Testing/User-Service_Health.png)
+
+### Product Service: http://localhost:3001
+
+```bash
+curl http://localhost:3001
+curl http://localhost:3001/products
+```
+-- Local Host 3001 - Product Service --
+
+![Product Service Running Successfully](/Deployment_Process/screenshots/Step6_Deployment_Testing/Product-Service_Health.png)
+
+### Order Service: http://localhost:3002
+
+```bash
+curl http://localhost:3002
+curl http://localhost:3002/orders
+```
+-- Local Host 3002 - Order Service --
+
+![Order Service Running Successfully](/Deployment_Process/screenshots/Step6_Deployment_Testing/Order-Service_Health.png)
+
+### Gateway Service: http://localhost:3003
+
+```bash
+curl http://localhost:3003
+curl http://localhost:3003/users
+curl http://localhost:3003/products
+curl http://localhost:3003/orders
+```
+-- Local Host 3003 - Gateway Service --
+
+![Gateway Service Running Successfully](/Deployment_Process/screenshots/Step6_Deployment_Testing/Gateway-Service_Health.png)
+
+-- Gateway Service to User Service Mapping -- 
+
+![Gateway Service to User Service Mapping](/Deployment_Process/screenshots/Step6_Deployment_Testing/Gateway_to_User_Mapping.png)
+
+-- Gateway Service to Product Service Mapping --
+
+![Gateway Service to Product Service Mapping](/Deployment_Process/screenshots/Step6_Deployment_Testing/Gateway_to_Product_Mapping.png)
+
+-- Gateway Service to Order Service Mapping --
+
+![Gateway Service to Order Service Mapping](/Deployment_Process/screenshots/Step6_Deployment_Testing/Gateway_to_Order_Mapping.png)
+
+If the gateway returns data from the user and product services, the shared network is working.
+
+### View logs
+
+```bash
+docker compose logs -f
+docker compose logs gateway-service
+```
+-- Docker Compose Logs -- 
+
+![Docker Compose Logs Regarding the Working](/Deployment_Process/screenshots/Step6_Deployment_Testing/Logs_of_Docker_Compose.png)
+
+
+### Expected result
+
+| Check | Expected |
+|---|---|
+| `docker compose ps` | All 4 services **Up** |
+| `localhost:3000` | User Service responds |
+| `localhost:3001` | Product Service responds |
+| `localhost:3002` | Order Service responds |
+| `localhost:3003` | Gateway responds and can reach both services |
+
+---
+
+
+## 6. Troubleshooting
+
+| Problem | Likely cause | Fix |
+|---|---|---|
+| `Cannot connect to the Docker daemon` | Docker isn't running | Start Docker Desktop (or `sudo systemctl start docker` on Linux) |
+| `port is already allocated` / `address already in use` | Another program uses 3000, 3001 or 3003 | Stop it, or change the left side of the mapping, e.g. `"4000:3000"` |
+| `npm start` fails / `Missing script: start` | No `start` script in `package.json` | Use `CMD ["node", "index.js"]` with the correct file name |
+| `Cannot find module ...` | Dependencies not installed or `node_modules` copied from host | Confirm `.dockerignore` lists `node_modules`, then `docker compose build --no-cache` |
+| Gateway gets `ECONNREFUSED 127.0.0.1:3000` | Gateway code still uses `localhost` | Use `http://user-service:3000` and `http://product-service:3001` |
+| Service opens but the browser can't connect | App listens only on `127.0.0.1` | Make it listen on all interfaces: `app.listen(PORT, '0.0.0.0')` |
+| Changes in code don't appear | Old image is cached | Run `docker compose up --build` |
+| Container exits immediately | App crashed on startup | Run `docker compose logs <service-name>` and read the error |
+| `version is obsolete` warning | Newer Compose ignores `version:` | Safe to ignore (this file doesn't use it) |
+
+Full reset (removes containers, networks and built images for this project):
+
+```bash
+docker compose down --rmi local
+docker compose up --build
+```
+-- Undeploying and Stopping the Container --
+
+![Undeploying and Stopping the Containers Deployed on Docker](/Deployment_Process/screenshots/Step7_Undeploy_The_Background_Deployed_App/Undeploy_The_Deployed_Containers.png)
+
+![Undeploying and Stopping the Non-Background Application](/Deployment_Process/screenshots/Step7_Undeploy_The_Background_Deployed_App/Stopping_Currently_Deployed_Application.png)
+
+---
+
+## 7. Useful Commands
+
+```bash
+docker compose up --build        # build and start
+docker compose up -d             # start in background
+docker compose down              # stop and remove containers/network
+docker compose ps                # list services
+docker compose logs -f           # follow logs
+docker compose restart gateway-service
+docker images                    # list images
+docker network ls                # list networks
 ```
 
 ---
